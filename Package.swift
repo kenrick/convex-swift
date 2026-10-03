@@ -1,4 +1,4 @@
-// swift-tools-version: 5.10
+// swift-tools-version: 6.0
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
@@ -26,13 +26,17 @@ let package = Package(
     // Targets can depend on other targets in this package and products from dependencies.
     .target(
       name: "ConvexMobile",
-      dependencies: [.target(name: "UniFFI")]),
+      dependencies: [.target(name: "UniFFI")],
+      swiftSettings: [.swiftLanguageMode(.v6)]),
+    // UniFFI 0.28's generated bindings predate Swift 6 strict concurrency.
     .target(
       name: "UniFFI",
       dependencies: [.target(name: "ConvexMobileCoreRS")],
-      path: "Sources/UniFFI"),
+      path: "Sources/UniFFI",
+      swiftSettings: [.swiftLanguageMode(.v5)]),
     .testTarget(
       name: "ConvexMobileTests",
-      dependencies: ["ConvexMobile"]),
+      dependencies: ["ConvexMobile"],
+      swiftSettings: [.swiftLanguageMode(.v5)]),
   ]
 )
