@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Privacy manifest for ConvexMobile and the libconvexmobile Rust core it links statically.
+
+  The library collects no data for itself and does no tracking: it only exchanges the app's own
+  function calls and results with the app's Convex deployment.
+
+  Required reason APIs, from the symbols a linked, dead-stripped app imports:
+  - fstat (File timestamp APIs): the Rust standard library sizes files it maps or reads. Its
+    backtrace symbolizer maps the app's own executable inside the app bundle when a panic message
+    is printed (C617.1). Its OS version lookup would read SystemVersion.plist only if sysctl
+    kern.osproductversion failed, which it doesn't on supported OS versions. No timestamps are read.
+  Time (clock_gettime, clock_gettime_nsec_np, gettimeofday), randomness (CCRandomGenerateBytes) and
+  sysctlbyname (OS version and CPU feature detection) are not on Apple's required reason list.
+-->
+<plist version="1.0">
+<dict>
+	<key>NSPrivacyTracking</key>
+	<false/>
+	<key>NSPrivacyTrackingDomains</key>
+	<array/>
+	<key>NSPrivacyCollectedDataTypes</key>
+	<array/>
+	<key>NSPrivacyAccessedAPITypes</key>
+	<array>
+		<dict>
+			<key>NSPrivacyAccessedAPIType</key>
+			<string>NSPrivacyAccessedAPICategoryFileTimestamp</string>
+			<key>NSPrivacyAccessedAPITypeReasons</key>
+			<array>
+				<string>C617.1</string>
+			</array>
+		</dict>
+	</array>
+</dict>
+</plist>

@@ -27,6 +27,7 @@ let package = Package(
     .target(
       name: "ConvexMobile",
       dependencies: [.target(name: "UniFFI")],
+      resources: [.copy("PrivacyInfo.xcprivacy")],
       swiftSettings: [.swiftLanguageMode(.v6)]),
     // UniFFI 0.28's generated bindings predate Swift 6 strict concurrency.
     .target(
