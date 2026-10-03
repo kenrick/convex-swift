@@ -67,6 +67,10 @@ final class ThreadSafeFakeMobileConvexClient: UniFFI.MobileConvexClientProtocol,
   }
 
   func setAuth(token: String?) async throws {}
+  func setAdminAuth(adminKey: String, actingAsJson: String?) async throws {
+    // Like the Rust client, admin auth replaces any installed token callback.
+    lock.withLock { provider = nil }
+  }
   func query(name: String, args: [String: String]) async throws -> String { "null" }
   func mutation(name: String, args: [String: String]) async throws -> String { "null" }
   func action(name: String, args: [String: String]) async throws -> String { "null" }

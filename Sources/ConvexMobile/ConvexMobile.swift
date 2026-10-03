@@ -165,6 +165,21 @@ public class ConvexClient: @unchecked Sendable {
   public func watchWebSocketState() -> AnyPublisher<WebSocketState, Never> {
     return webSocketStateAdapter.newPublisher()
   }
+
+  /// Authenticates this client with a deployment admin key, acting as `identity` when one is
+  /// given.
+  ///
+  /// For local development only: an admin key has full access to its deployment, so never ship
+  /// one in an app. Functions see `identity` through `ctx.auth.getUserIdentity()`. This is the
+  /// counterpart of the JavaScript client's `setAdminAuth(adminKey, identity)`, and it replaces
+  /// any auth set earlier.
+  ///
+  /// - Throws: ``ClientError/InternalError(msg:)`` if `identity` has neither a `tokenIdentifier`
+  ///   nor both an `issuer` and a `subject`.
+  public func setAdminAuth(adminKey: String, identity: UserIdentity? = nil) async throws {
+    let identityJSON = try identity.map { String(decoding: try JSONEncoder().encode($0), as: UTF8.self) }
+    try await ffiClient.setAdminAuth(adminKey: adminKey, actingAsJson: identityJSON)
+  }
 }
 
 /// Authentication states that can be experienced when using an ``AuthProvider`` with
@@ -361,6 +376,16 @@ public class ConvexClientWithAuth<T>: ConvexClient, @unchecked Sendable {
     } catch {
       dump(error)
     }
+  }
+
+  /// See ``ConvexClient/setAdminAuth(adminKey:identity:)``.
+  ///
+  /// Also ends any session started with ``login()`` or ``loginFromCache()``, so a late token
+  /// refresh can't replace the admin auth. ``authState`` doesn't track admin auth, and
+  /// ``logout()`` clears it.
+  public override func setAdminAuth(adminKey: String, identity: UserIdentity? = nil) async throws {
+    authBridge.endSession()
+    try await super.setAdminAuth(adminKey: adminKey, identity: identity)
   }
 
   private func login(strategy: LoginStrategy) async -> Result<T, Error> {

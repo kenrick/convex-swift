@@ -512,6 +512,13 @@ class FakeMobileConvexClient: UniFFI.MobileConvexClientProtocol {
     setAuthCallbackExpectation?.fulfill()
   }
 
+  var adminAuth: (adminKey: String, actingAsJson: String?)? = nil
+
+  func setAdminAuth(adminKey: String, actingAsJson: String?) async throws {
+    adminAuth = (adminKey, actingAsJson)
+    authProvider = nil
+  }
+
   func subscribe(name: String, args: [String: String], subscriber: any UniFFI.QuerySubscriber)
     async throws -> UniFFI.SubscriptionHandle
   {

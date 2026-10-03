@@ -637,6 +637,8 @@ public protocol MobileConvexClientProtocol : AnyObject {
     
     func query(name: String, args: [String: String]) async throws  -> String
     
+    func setAdminAuth(adminKey: String, actingAsJson: String?) async throws 
+    
     func setAuth(token: String?) async throws 
     
     func setAuthCallback(provider: AuthTokenProvider?) async throws 
@@ -743,6 +745,23 @@ open func query(name: String, args: [String: String])async throws  -> String {
             completeFunc: ffi_convexmobile_rust_future_complete_rust_buffer,
             freeFunc: ffi_convexmobile_rust_future_free_rust_buffer,
             liftFunc: FfiConverterString.lift,
+            errorHandler: FfiConverterTypeClientError.lift
+        )
+}
+    
+open func setAdminAuth(adminKey: String, actingAsJson: String?)async throws  {
+    return
+        try  await uniffiRustCallAsync(
+            rustFutureFunc: {
+                uniffi_convexmobile_fn_method_mobileconvexclient_set_admin_auth(
+                    self.uniffiClonePointer(),
+                    FfiConverterString.lower(adminKey),FfiConverterOptionString.lower(actingAsJson)
+                )
+            },
+            pollFunc: ffi_convexmobile_rust_future_poll_void,
+            completeFunc: ffi_convexmobile_rust_future_complete_void,
+            freeFunc: ffi_convexmobile_rust_future_free_void,
+            liftFunc: { $0 },
             errorHandler: FfiConverterTypeClientError.lift
         )
 }
@@ -1638,6 +1657,9 @@ private var initializationResult: InitializationResult = {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_convexmobile_checksum_method_mobileconvexclient_query() != 27750) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_convexmobile_checksum_method_mobileconvexclient_set_admin_auth() != 60799) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_convexmobile_checksum_method_mobileconvexclient_set_auth() != 54530) {
